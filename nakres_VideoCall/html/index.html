@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nakres:VideoCall</title>
+    <link rel="stylesheet" href="../style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="device">
+        <video id="remote-video" width="252" height="375" class="content-area" autoplay>
+        </video>
+        <canvas id="local-video" class="content-area"></canvas>
+        <div id="input-area">
+          <br />
+          <button onclick="stopCall()" id="stop-stream">Kapat</button>
+          <button id="coming-call" onclick="joinCall()" style="display: none">
+            Katıl
+          </button>
+          <input
+            id="callId-input"
+            type="text"
+            placeholder="kullanıcı id"
+          /><button onclick="startCall()" id="start-call">Ara</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/script.js"></script>
+    <script src="./videoCall.js"></script>
+  </body>
+</html>
