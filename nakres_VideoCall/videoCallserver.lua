@@ -1,80 +1,53 @@
 local users = {}
 RegisterServerEvent("nakres_videocall:sendData")
 AddEventHandler("nakres_videocall:sendData", function(data)
+    print("aranan id "..data.callId)
+    print("Eventı çalıştıran kişi "..data.serverId)
     local user = findUser(data.callId)
-
-    -- print(json.encode(user))
     if data.type == "store_user" then
-        if user ~= nil then
-            return
-        end
+        if user then return print(("[nakres_videocall]: Bu kişi zaten bir aktif bir görüntülü konuşmada | USER ID : %s"):format(data.callId)) end
         local newUser = {
             serverId = data.serverId,
             callId = data.callId
         }
         table.insert(users, newUser)
-        -- print(json.encode(newUser))
-        -- user = newUser
-        -- print(newUser.callId .. " Eklendi")
+    end
 
-    elseif data.type == "store_offer" then
-        if user == nil then
-            return
-        end
+    if not user then return print(("[nakres_videocall]: Arayan kişinin ice datası bulunamadı | USER ID : %s"):format(data.callId)) end
+
+    if data.type == "store_offer" then
         user.offer = data.offer
-        -- print(json.encode(user.offer))
-
     elseif data.type == "store_candidate" then
-        -- print(user.serverId)
-        if user == nil then
-            return
-        end
         if user.candidates == nil then
             user.candidates = {}
         end
         table.insert(user.candidates, data.candidate)
-        -- print(json.encode(data.candidate))
-
     elseif data.type == "send_answer" then
-        if user == nil then
-            return
-        end
         sendData({
             type = "answer",
             answer = data.answer
         }, user.serverId)
-
     elseif data.type == "send_candidate" then
-        if user == nil then
-            return
-        end
         sendData({
             type = "candidate",
             candidate = data.candidate
         }, user.serverId)
-
     elseif data.type == "join_call" then
-        -- print(user.offer)
-        if user == nil then
-            return
-        end
         sendData({
             type = "offer",
             offer = user.offer
         }, user.callId)
-        -- print(json.encode(user.candidates))
         for index, value in ipairs(user.candidates) do
             sendData({
                 type = "candidate",
                 candidate = value
             }, user.callId)
-            -- print("join")
         end
-
     end
 end)
 
 function sendData(data, src)
+    print(src.." İd sine data yolladım")
     TriggerClientEvent("nakres_videocall:sendData", src, data)
 end
 
@@ -87,6 +60,30 @@ function findUser(callId)
 end
 
 RegisterServerEvent("nakres_videocall:sendCall")
-AddEventHandler("nakres_videocall:sendCall", function(id)
-    TriggerClientEvent("nakres_videocall:sendCall", id)
+AddEventHandler("nakres_videocall:sendCall", function(id ,cal)
+    print("Aranan kişide client eventını tetiklemeye gidiyor aranan id : "..id.." Arayan id : "..cal)
+    TriggerClientEvent("nakres_videocall:sendCall", id , id , cal)
+end)
+
+RegisterServerEvent("nakres_videocall:stopCall")
+AddEventHandler("nakres_videocall:stopCall", function(id)
+    TriggerClientEvent("nakres_videocall:stopCall", id)
+end)
+
+RegisterServerEvent("nakres_videocall:deletServerUser")
+AddEventHandler("nakres_videocall:deletServerUser", function(id)
+    for i, user in ipairs(users) do
+        if user.serverId == id then
+            table.remove(users,i)
+        end
+    end
+end)
+
+RegisterServerEvent("StartCallVideo")
+AddEventHandler("StartCallVideo",function(t)
+    local src = source
+    local Target = GetPlayerFromPhone(t.TargetData.number)
+    -- local Target = QBCore.Functions.GetPlayerByPhone(t.TargetData.number)
+    print("aranan id  88.satır "..Target.PlayerData.source)
+    TriggerClientEvent("videoCall",src,Target.PlayerData.source)
 end)
